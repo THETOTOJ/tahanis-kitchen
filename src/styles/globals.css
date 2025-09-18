@@ -1,26 +1,70 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* =====================
+   Grandma Theming
+===================== */
+
+/* Base theme (default) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fff6e6; /* warm cream */
+  --foreground: #3b2f2f; /* soft brown */
+  --accent: #f7d6d0;     /* pastel pink */
+  --accent-dark: #d9a79c;
+  --card: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Cozy Dark Chocolate 🍫 */
+[data-theme="chocolate"] {
+  --background: #2e1f1f; /* dark cocoa */
+  --foreground: #f2e2d2; /* cream text */
+  --accent: #a86f5c;     /* mocha */
+  --accent-dark: #7b4a3b;
+  --card: #3d2b2b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Matcha Green 🍵 */
+[data-theme="matcha"] {
+  --background: #f0f7f0; /* pale green */
+  --foreground: #2c3d2c; /* deep green */
+  --accent: #a8d5ba;     /* light mint */
+  --accent-dark: #6ea381;
+  --card: #ffffff;
+}
+
+/* Strawberry 🍓 */
+[data-theme="strawberry"] {
+  --background: #fff0f3; /* light pink */
+  --foreground: #2d1a1a; /* rich brownish */
+  --accent: #ff6b81;     /* bright strawberry red */
+  --accent-dark: #cc4455;
+  --card: #ffffff;
+}
+
+/* Blueberry 🫐 */
+[data-theme="blueberry"] {
+  --background: #f3f5ff; /* pale blue */
+  --foreground: #1c1a3d; /* navy */
+  --accent: #6b7bff;     /* blueberry blue */
+  --accent-dark: #3a49c9;
+  --card: #ffffff;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Playfair Display", serif;
+  transition: background 0.3s, color 0.3s;
+}
+
+button {
+  @apply px-3 py-2 rounded-lg shadow-sm;
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+button:hover {
+  background: var(--accent-dark);
 }
