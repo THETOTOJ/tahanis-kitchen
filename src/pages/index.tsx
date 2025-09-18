@@ -5,16 +5,21 @@ import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import type { Tables } from "@/types/database.types";
+
+type RecipeWithPreview = Tables<"recipes"> & { preview: string | null };
+
+const presets = ["all", "vegetarian", "vegan"] as const;
 
 export default function Home() {
-  const [user, setUser] = useState<any>(null);
-  const [recipes, setRecipes] = useState<any[]>([]);
-  const [tags, setTags] = useState<any[]>([]);
-  const [efforts, setEfforts] = useState<any[]>([]);
+  const [user, setUser] = useState<Tables<"users"> | null>(null);
+  const [recipes, setRecipes] = useState<RecipeWithPreview[]>([]);
+  const [tags, setTags] = useState<Tables<"tags">[]>([]);
+  const [efforts, setEfforts] = useState<Tables<"efforts">[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedEfforts, setSelectedEfforts] = useState<string[]>([]);
   const [query, setQuery] = useState("");
-  const [preset, setPreset] = useState<"all" | "vegetarian" | "vegan">("all");
+  const [preset, setPreset] = useState<typeof presets[number]>("all");
 
   const [page, setPage] = useState(1);
   const pageSize = 12;
@@ -26,11 +31,20 @@ export default function Home() {
 
   useEffect(() => {
     loadRecipes();
-  }, [selectedTags, selectedEfforts, query, preset, page]);
+  }, [selectedTags, selectedEfforts, query, preset, page, tags]);
 
   async function getUser() {
     const { data } = await supabase.auth.getUser();
-    setUser(data.user);
+    if (data.user) {
+      const { data: userData } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", data.user.id)
+        .single();
+      setUser(userData || null);
+    } else {
+      setUser(null);
+    }
   }
 
   async function loadFilters() {
@@ -41,7 +55,6 @@ export default function Home() {
   }
 
   async function loadRecipes() {
-    // Step 1: base query
     let { data } = await supabase
       .from("recipes")
       .select("*")
@@ -49,17 +62,20 @@ export default function Home() {
       .order("created_at", { ascending: false })
       .range((page - 1) * pageSize, page * pageSize - 1);
 
-    if (!data) data = [];
+    data = data || [];
 
-    // Step 2: filter by effort
+    // Filter by effort
     if (selectedEfforts.length > 0) {
-      data = data.filter((r) => selectedEfforts.includes(r.effort_id));
+      data = data.filter(
+        (r) => r.effort_id && selectedEfforts.includes(r.effort_id)
+      );
     }
 
-    // Step 3: filter by tags / preset
-    if (selectedTags.length > 0 || preset !== "all") {
+    // Filter by tags / preset
+    if ((selectedTags.length > 0 || preset !== "all") && tags.length > 0) {
       const { data: rtags } = await supabase.from("recipe_tags").select("*");
-      let neededTags = [...selectedTags];
+      const neededTags = [...selectedTags];
+
       if (preset === "vegetarian") {
         const vegTag = tags.find((t) => t.name.toLowerCase() === "vegetarian");
         if (vegTag) neededTags.push(vegTag.id);
@@ -68,6 +84,7 @@ export default function Home() {
         const veganTag = tags.find((t) => t.name.toLowerCase() === "vegan");
         if (veganTag) neededTags.push(veganTag.id);
       }
+
       if (neededTags.length > 0 && rtags) {
         const recipeIds = rtags
           .filter((rt) => neededTags.includes(rt.tag_id))
@@ -76,14 +93,17 @@ export default function Home() {
       }
     }
 
-    // Step 4: search query
+    // Search query
     if (query) {
-      data = data.filter((r) =>
-        (r.title + r.ingredients).toLowerCase().includes(query.toLowerCase())
+      data = data.filter(
+        (r) =>
+          ((r.title || "") + (r.ingredients || ""))
+            .toLowerCase()
+            .includes(query.toLowerCase())
       );
     }
 
-    // Step 5: get first image for each recipe
+    // Fetch first image for each recipe
     const recipeIds = data.map((r) => r.id);
     const { data: images } = await supabase
       .from("recipe_images")
@@ -91,10 +111,30 @@ export default function Home() {
       .in("recipe_id", recipeIds)
       .order("sort_order", { ascending: true });
 
-    const recipesWithImages = data.map((r) => ({
-      ...r,
-      preview: images?.find((img) => img.recipe_id === r.id)?.image_url || "",
-    }));
+    const recipesWithImages: RecipeWithPreview[] = await Promise.all(
+      data.map(async (r) => {
+        const imgs = images?.filter((img) => img.recipe_id === r.id) || [];
+        const mainImg = imgs.length
+          ? imgs.reduce((prev, curr) =>
+              (prev.sort_order ?? 0) < (curr.sort_order ?? 0) ? prev : curr
+            )
+          : null;
+
+        let publicUrl: string | null = null;
+        if (mainImg?.image_url) {
+          const { data: urlData } = supabase
+            .storage
+            .from("recipe_images")
+            .getPublicUrl(mainImg.image_url);
+          publicUrl = urlData?.publicUrl || null;
+        }
+
+        return {
+          ...r,
+          preview: publicUrl,
+        };
+      })
+    );
 
     setRecipes(recipesWithImages);
   }
@@ -117,18 +157,20 @@ export default function Home() {
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Preset Tabs */}
       <div className="flex gap-4">
-        {["all", "vegetarian", "vegan"].map((p) => (
+        {presets.map((p) => (
           <button
             key={p}
             onClick={() => {
-              setPreset(p as any);
+              setPreset(p);
               setPage(1);
             }}
             className={`px-4 py-2 rounded ${
               preset === p ? "bg-grandma-pink font-bold" : "bg-grandma-cream"
             }`}
           >
-            {p === "all" ? "All Recipes" : p.charAt(0).toUpperCase() + p.slice(1)}
+            {p === "all"
+              ? "All Recipes"
+              : p.charAt(0).toUpperCase() + p.slice(1)}
           </button>
         ))}
       </div>
@@ -191,14 +233,14 @@ export default function Home() {
         <Link href="/recipes/new">
           <button
             className="
-            fixed bottom-6 right-6
-            flex items-center justify-center
-            w-14 h-14
-            rounded-full shadow-lg
-            bg-grandma-pink text-grandma-brown
-            hover:bg-grandma-cream hover:text-grandma-brown
-            transition-colors duration-200
-          "
+              fixed bottom-6 right-6
+              flex items-center justify-center
+              w-14 h-14
+              rounded-full shadow-lg
+              bg-grandma-pink text-grandma-brown
+              hover:bg-grandma-cream hover:text-grandma-brown
+              transition-colors duration-200
+            "
           >
             <Plus className="w-6 h-6" />
           </button>

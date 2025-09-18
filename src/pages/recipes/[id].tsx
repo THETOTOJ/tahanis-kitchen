@@ -5,13 +5,55 @@ import SortableImageUploader from "@/components/SortableImageUploader";
 import { useParams, useRouter } from "next/navigation";
 import RecipeImageGallery from "@/components/RecipeImageGallery";
 import RecipeActions from "@/components/RecipeActions";
+import Image from "next/image";
+import type { Tables } from "@/types/database.types";
+
+type RecipeImage = {
+  id: string;
+  image_url: string;
+  sort_order: number;
+};
+
+type RecipeTag = {
+  tags: {
+    name: string;
+  };
+};
+
+type RecipeEffort = {
+  efforts: {
+    name: string;
+  };
+};
+
+type Recipe = Tables<"recipes"> & {
+  recipe_images?: RecipeImage[];
+  recipe_tags?: RecipeTag[];
+  recipe_efforts?: RecipeEffort[];
+  user_id?: string;
+};
+
+type User = {
+  username: string;
+  profile_picture: string | null;
+};
+
+type Comment = {
+  id: string;
+  user_id: string;
+  recipe_id: string;
+  body: string;
+  created_at: string;
+  users?: User & { profile_picture_url?: string | null };
+  rating?: number | null;
+};
 
 export default function RecipePage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
 
-  const [recipe, setRecipe] = useState<any>(null);
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [author, setAuthor] = useState<string>("");
 
@@ -26,10 +68,10 @@ export default function RecipePage() {
 
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [dbImages, setDbImages] = useState<any[]>([]);
+  const [dbImages, setDbImages] = useState<RecipeImage[]>([]);
 
   // Comments state
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
 
   useEffect(() => {
@@ -60,7 +102,7 @@ export default function RecipePage() {
       return;
     }
 
-    setRecipe(data);
+    setRecipe(data as Recipe);
     if (data) {
       setTitle(data.title);
       setIngredients(data.ingredients);
@@ -68,14 +110,14 @@ export default function RecipePage() {
 
       // tags
       if (data.recipe_tags) {
-        setTags(data.recipe_tags.map((rt: any) => rt.tags.name));
+        setTags(data.recipe_tags.map((rt: RecipeTag) => rt.tags.name));
       } else {
         setTags([]);
       }
 
       // efforts
       if (data.recipe_efforts) {
-        setEfforts(data.recipe_efforts.map((re: any) => re.efforts.name));
+        setEfforts(data.recipe_efforts.map((re: RecipeEffort) => re.efforts.name));
       } else {
         setEfforts([]);
       }
@@ -92,12 +134,12 @@ export default function RecipePage() {
 
       if (data.recipe_images && data.recipe_images.length > 0) {
         const sorted = data.recipe_images.sort(
-          (a: any, b: any) => a.sort_order - b.sort_order
+          (a: RecipeImage, b: RecipeImage) => a.sort_order - b.sort_order
         );
         setDbImages(sorted);
 
         const signedUrls = await Promise.all(
-          sorted.map(async (img: any) => {
+          sorted.map(async (img: RecipeImage) => {
             const { data: signedUrl, error: signError } = await supabase.storage
               .from("recipe-images")
               .createSignedUrl(img.image_url, 3600);
@@ -109,11 +151,11 @@ export default function RecipePage() {
               );
               return null;
             }
-            return signedUrl.signedUrl;
+            return signedUrl?.signedUrl ?? null;
           })
         );
 
-        const validUrls = signedUrls.filter((url) => url !== null) as string[];
+        const validUrls = signedUrls.filter((url): url is string => url !== null);
         setPreviews(validUrls);
         setImages([]);
       } else {
@@ -142,8 +184,8 @@ export default function RecipePage() {
     }
 
     // Get signed URLs for profile pictures
-    const commentsWithSignedUrls = await Promise.all(
-      (data || []).map(async (comment) => {
+    const commentsWithSignedUrls: Comment[] = await Promise.all(
+      (data || []).map(async (comment: Comment) => {
         if (comment.users?.profile_picture) {
           const { data: signedUrl } = await supabase.storage
             .from("profile-pictures")
@@ -205,7 +247,7 @@ export default function RecipePage() {
   }
 
   async function saveChanges() {
-    if (!userId || recipe.user_id !== userId) return alert("Not allowed!");
+    if (!userId || !recipe || recipe.user_id !== userId) return alert("Not allowed!");
     await supabase
       .from("recipes")
       .update({ title, ingredients, instructions })
@@ -259,12 +301,12 @@ export default function RecipePage() {
   }
 
   async function deleteRecipe() {
-    if (!userId || recipe.user_id !== userId) return alert("Not allowed!");
+    if (!userId || !recipe || recipe.user_id !== userId) return alert("Not allowed!");
     const confirmed = confirm("Are you sure you want to delete this recipe?");
     if (!confirmed) return;
 
-    if (recipe.recipe_images?.length > 0) {
-      const paths = recipe.recipe_images.map((img: any) => img.image_url);
+    if ((recipe.recipe_images?.length ?? 0) > 0) {
+      const paths = (recipe.recipe_images ?? []).map((img: RecipeImage) => img.image_url);
       await supabase.storage.from("recipe-images").remove(paths);
       await supabase.from("recipe_images").delete().eq("recipe_id", id);
     }
@@ -436,9 +478,11 @@ export default function RecipePage() {
                         {/* Profile Picture */}
                         <div className="flex-shrink-0">
                           {comment.users?.profile_picture_url ? (
-                            <img
+                            <Image
                               src={comment.users.profile_picture_url}
                               alt={comment.users.username}
+                              width={40}
+                              height={40}
                               className="w-10 h-10 rounded-full object-cover"
                             />
                           ) : (

@@ -3,9 +3,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import type { Tables } from "@/types/database.types";
 
 export default function Navbar() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<Tables<"users"> | null>(null);
 
   useEffect(() => {
     getUser();
@@ -18,23 +19,35 @@ export default function Navbar() {
   }, []);
 
   async function getUser() {
-    const { data } = await supabase.auth.getUser();
+    const { data: authData } = await supabase.auth.getUser();
 
-    if (data.user) {
-      const { data: userData, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", data.user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching user data:", error);
-        setUser(data.user); // fallback to auth user
-      } else {
-        setUser(userData);
-      }
-    } else {
+    if (!authData.user) {
       setUser(null);
+      return;
+    }
+
+    const { data: userData, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", authData.user.id)
+      .single();
+
+    if (error || !userData) {
+      console.error("Error fetching user data:", error);
+
+      const fallbackUser: Tables<"users"> = {
+        id: authData.user.id,
+        email: authData.user.email ?? null,
+        banned: null,
+        bio: null,
+        created_at: null,
+        is_admin: null,
+        profile_picture: null,
+        username: null,
+      };
+      setUser(fallbackUser);
+    } else {
+      setUser(userData);
     }
   }
 

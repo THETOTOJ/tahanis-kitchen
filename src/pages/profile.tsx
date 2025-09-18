@@ -1,9 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { Tables } from "@/types/database.types";
+import Image from "next/image";
 
 export default function ProfilePage() {
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<Tables<"users"> | null>(null);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -146,9 +148,11 @@ export default function ProfilePage() {
           onClick={() => fileInputRef.current?.click()}
         >
           {preview ? (
-            <img
+            <Image
               src={preview}
               alt="Profile Preview"
+              width={40}
+              height={40}
               className="w-full h-full object-cover"
             />
           ) : (

@@ -57,6 +57,8 @@ function Checklist({
 
 export default function NewRecipe() {
   const [title, setTitle] = useState("");
+  const [cook_time_mins, setCookTime] = useState("");
+
   const [ingredients, setIngredients] = useState("");
   const [instructions, setInstructions] = useState("");
   const [images, setImages] = useState<File[]>([]);
@@ -72,8 +74,8 @@ export default function NewRecipe() {
 
   useEffect(() => {
     async function fetchOptions() {
-      let { data: tags } = await supabase.from("tags").select("*");
-      let { data: efforts } = await supabase.from("efforts").select("*");
+      const { data: tags } = await supabase.from("tags").select("*");
+      const { data: efforts } = await supabase.from("efforts").select("*");
       setTags(tags || []);
       setEfforts(efforts || []);
     }
@@ -100,6 +102,7 @@ export default function NewRecipe() {
         title,
         ingredients,
         instructions,
+        cook_time_mins,
         user_id: user.id,
       })
       .select()
@@ -150,6 +153,7 @@ export default function NewRecipe() {
 
     setSuccess("Recipe created!");
     setTitle("");
+    setCookTime("");
     setIngredients("");
     setInstructions("");
     setImages([]);
@@ -190,7 +194,13 @@ export default function NewRecipe() {
         placeholder="Instructions"
         className="border rounded px-3 py-2"
       />
-
+      <input
+        value={cook_time_mins}
+        type="number"
+        onChange={(e) => setCookTime(e.target.value)}
+        placeholder="Cook time (in minutes)"
+        className="border rounded px-3 py-2"
+      />
       <Checklist
         label="Efforts"
         options={efforts}

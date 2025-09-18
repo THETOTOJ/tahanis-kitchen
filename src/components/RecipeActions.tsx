@@ -1,11 +1,12 @@
 "use client";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect, useState } from "react";
+import type { Tables } from "@/types/database.types";
 
 export default function RecipeActions({ recipeId }: { recipeId: string }) {
   const [isFav, setIsFav] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [collections, setCollections] = useState<any[]>([]);
+  const [collections, setCollections] = useState<Tables<"collections">[]>([]);
   const [newCollectionName, setNewCollectionName] = useState("");
 
   useEffect(() => {
@@ -20,7 +21,6 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
   }
 
   async function getFavoritesCollection(userId: string) {
-    // Try to fetch existing "Favorites" collection - remove .single() to avoid errors
     const { data: favCollections } = await supabase
       .from("collections")
       .select("*")
@@ -173,7 +173,7 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
 
             {collections.length === 0 ? (
               <div>
-                <p className="mb-2">You don't have any collections yet.</p>
+                <p className="mb-2">You do not have any collections yet.</p>
                 <input
                   type="text"
                   placeholder="New collection name"

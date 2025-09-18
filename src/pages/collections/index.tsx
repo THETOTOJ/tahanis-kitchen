@@ -2,9 +2,10 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabaseClient"
+import { Tables } from "@/types/database.types"
 
 export default function CollectionsPage() {
-  const [collections, setCollections] = useState<any[]>([])
+  const [collections, setCollections] = useState<Tables<"collections">[]>([])
 
   useEffect(() => {
     load()
