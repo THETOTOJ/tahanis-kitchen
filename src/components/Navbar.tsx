@@ -64,7 +64,7 @@ export default function Navbar() {
           href="/recipes"
           className="font-bold text-lg text-grandma-brown hover:underline"
         >
-          🍲 Tahani’s Kitchen
+          🍲 Toto's Kitchen
         </Link>
         <Link
           href="/"
