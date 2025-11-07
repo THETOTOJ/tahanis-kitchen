@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Tables } from "@/types/database.types";
 import Image from "next/image";
 import Head from "next/head";
+import imageCompression from 'browser-image-compression';
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<Tables<"users"> | null>(null);
@@ -128,95 +129,113 @@ export default function ProfilePage() {
     }
   }
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0] || null;
-    setFile(file);
-    if (file) {
-      setPreview(URL.createObjectURL(file));
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selectedFile = e.target.files?.[0] || null;
+
+    if (!selectedFile) return;
+
+    try {
+      const options = {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 400,
+        useWebWorker: true,
+        fileType: 'image/*'
+      };
+
+      const compressedFile = await imageCompression(selectedFile, options);
+
+      setFile(compressedFile);
+      setPreview(URL.createObjectURL(compressedFile));
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      // Fallback to original file
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile));
     }
   }
 
   return (
-     <>
-    <Head>
-      <title>My Profile | Get Stuffed !</title>
-    </Head>
-    <div className="max-w-md mx-auto mt-10 space-y-4 bg-rose-50 p-6 rounded-xl shadow-md">
-      <h1 className="text-2xl font-bold text-center text-rose-800 mb-4">
-        My Profile
-      </h1>
+    <>
+      <Head>
+        <title>My Profile | Get Stuffed !</title>
+      </Head>
+      <div className="max-w-md mx-auto mt-10 space-y-4 bg-rose-50 p-6 rounded-xl shadow-md">
+        <h1 className="text-2xl font-bold text-center text-rose-800 mb-4">
+          My Profile
+        </h1>
 
-      {/* Profile picture uploader */}
-      <div className="flex flex-col items-center gap-2">
-        <div
-          className="w-28 h-28 rounded-full border-2 border-dashed border-rose-400 flex items-center justify-center cursor-pointer overflow-hidden bg-white hover:bg-rose-100 transition"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {preview ? (
-            <Image
-              src={preview}
-              alt="Profile Preview"
-              width={40}
-              height={40}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-4xl text-rose-400">+</span>
-          )}
-        </div>
-        {preview && (
-          <button
-            onClick={deleteProfilePicture}
-            className="text-sm text-rose-600 hover:underline"
+        {/* Profile picture uploader */}
+        <div className="flex flex-col items-center gap-2">
+          <div
+            className="w-28 h-28 rounded-full border-2 border-dashed border-rose-400 flex items-center justify-center cursor-pointer overflow-hidden bg-white hover:bg-rose-100 transition"
+            onClick={() => fileInputRef.current?.click()}
           >
-            Remove picture
-          </button>
-        )}
+            {preview ? (
+              <Image
+                src={preview}
+                alt="Profile Preview"
+                width={112}
+                height={112}
+                className="w-full h-full object-cover"
+                quality={95}
+              />
+            ) : (
+              <span className="text-4xl text-rose-400">+</span>
+            )}
+          </div>
+          {preview && (
+            <button
+              onClick={deleteProfilePicture}
+              className="text-sm text-rose-600 hover:underline"
+            >
+              Remove picture
+            </button>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </div>
+
+        {/* Username */}
         <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
+          className="border p-2 w-full rounded"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
+
+        {/* Bio */}
+        <textarea
+          className="border p-2 w-full rounded resize-none"
+          placeholder="Bio (optional)"
+          value={bio}
+          maxLength={200}
+          onChange={(e) => setBio(e.target.value)}
+        />
+        <p className="text-xs text-gray-500 text-right">{bio.length}/200</p>
+
+        <button
+          onClick={saveProfile}
+          className="bg-rose-600 text-white py-2 px-4 rounded hover:bg-rose-700 transition w-full"
+        >
+          Save
+        </button>
+
+        {error && (
+          <div className="bg-red-100 text-red-700 border border-red-300 px-3 py-2 rounded mt-2 text-sm">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-100 text-green-700 border border-green-300 px-3 py-2 rounded mt-2 text-sm">
+            {success}
+          </div>
+        )}
       </div>
-
-      {/* Username */}
-      <input
-        className="border p-2 w-full rounded"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-
-      {/* Bio */}
-      <textarea
-        className="border p-2 w-full rounded resize-none"
-        placeholder="Bio (optional)"
-        value={bio}
-        maxLength={200}
-        onChange={(e) => setBio(e.target.value)}
-      />
-      <p className="text-xs text-gray-500 text-right">{bio.length}/200</p>
-
-      <button
-        onClick={saveProfile}
-        className="bg-rose-600 text-white py-2 px-4 rounded hover:bg-rose-700 transition w-full"
-      >
-        Save
-      </button>
-
-      {error && (
-        <div className="bg-red-100 text-red-700 border border-red-300 px-3 py-2 rounded mt-2 text-sm">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="bg-green-100 text-green-700 border border-green-300 px-3 py-2 rounded mt-2 text-sm">
-          {success}
-        </div>
-      )}
-    </div>
     </>
   );
 }

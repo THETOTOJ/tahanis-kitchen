@@ -101,108 +101,110 @@ export default function Login() {
       setPassword("");
       setConfirmPassword("");
       setIsRegister(false); // Switch back to login view
+      router.replace("/profile?new=true");
+
     }
   }
 
   return (
-     <>
-    <Head>
-      <title>{isRegister ? "Register" : "Login"} | Get Stuffed !</title>
-    </Head>
-    <div className="max-w-sm mx-auto mt-20 flex flex-col gap-4 bg-rose-50 p-6 rounded-xl shadow-md">
-      <h1 className="text-2xl font-bold text-rose-800 mb-2 text-center">
-        {isRegister ? "Register" : "Login"}
-      </h1>
+    <>
+      <Head>
+        <title>{isRegister ? "Register" : "Login"} | Get Stuffed !</title>
+      </Head>
+      <div className="max-w-sm mx-auto mt-20 flex flex-col gap-4 bg-rose-50 p-6 rounded-xl shadow-md">
+        <h1 className="text-2xl font-bold text-rose-800 mb-2 text-center">
+          {isRegister ? "Register" : "Login"}
+        </h1>
 
-      <input
-        type="email"
-        placeholder="Email"
-        className="border rounded px-3 py-2"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      <div className="relative">
         <input
-          type={showPassword ? "text" : "password"}
-          placeholder="Password"
-          className="border rounded px-3 py-2 w-full pr-12"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          type="email"
+          placeholder="Email"
+          className="border rounded px-3 py-2"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-        <button
-          type="button"
-          className="absolute inset-y-0 right-3 flex items-center text-sm text-blue-600"
-          onClick={() => setShowPassword((prev) => !prev)}
-        >
-          {showPassword ? "Hide" : "Show"}
-        </button>
-      </div>
 
-      {isRegister && (
         <div className="relative">
           <input
-            type={showConfirmPassword ? "text" : "password"}
-            placeholder="Confirm Password"
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
             className="border rounded px-3 py-2 w-full pr-12"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <button
             type="button"
             className="absolute inset-y-0 right-3 flex items-center text-sm text-blue-600"
-            onClick={() => setShowConfirmPassword((prev) => !prev)}
+            onClick={() => setShowPassword((prev) => !prev)}
           >
-            {showConfirmPassword ? "Hide" : "Show"}
+            {showPassword ? "Hide" : "Show"}
           </button>
         </div>
-      )}
 
-      {isRegister ? (
+        {isRegister && (
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              className="border rounded px-3 py-2 w-full pr-12"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-3 flex items-center text-sm text-blue-600"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+            >
+              {showConfirmPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+        )}
+
+        {isRegister ? (
+          <button
+            onClick={handleSignup}
+            className="bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+          >
+            Sign Up
+          </button>
+        ) : (
+          <button
+            onClick={handleLogin}
+            className="bg-rose-600 text-white py-2 rounded hover:bg-rose-700 transition"
+          >
+            Log In
+          </button>
+        )}
+
         <button
-          onClick={handleSignup}
-          className="bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+          onClick={() => setIsRegister(!isRegister)}
+          className="text-sm text-blue-600 hover:underline"
         >
-          Sign Up
+          {isRegister
+            ? "Already have an account? Log in"
+            : "Don't have an account? Register"}
         </button>
-      ) : (
-        <button
-          onClick={handleLogin}
-          className="bg-rose-600 text-white py-2 rounded hover:bg-rose-700 transition"
-        >
-          Log In
-        </button>
-      )}
 
-      <button
-        onClick={() => setIsRegister(!isRegister)}
-        className="text-sm text-blue-600 hover:underline"
-      >
-        {isRegister
-          ? "Already have an account? Log in"
-          : "Don't have an account? Register"}
-      </button>
+        {!isRegister && (
+          <button
+            onClick={handleForgotPassword}
+            className="text-sm text-rose-600 hover:underline"
+          >
+            Forgot password?
+          </button>
+        )}
 
-      {!isRegister && (
-        <button
-          onClick={handleForgotPassword}
-          className="text-sm text-rose-600 hover:underline"
-        >
-          Forgot password?
-        </button>
-      )}
-
-      {error && (
-        <div className="bg-red-100 text-red-700 border border-red-300 px-3 py-2 rounded mt-2 text-sm">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="bg-green-100 text-green-700 border border-green-300 px-3 py-2 rounded mt-2 text-sm">
-          {success}
-        </div>
-      )}
-    </div>
+        {error && (
+          <div className="bg-red-100 text-red-700 border border-red-300 px-3 py-2 rounded mt-2 text-sm">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-100 text-green-700 border border-green-300 px-3 py-2 rounded mt-2 text-sm">
+            {success}
+          </div>
+        )}
+      </div>
     </>
   );
 }

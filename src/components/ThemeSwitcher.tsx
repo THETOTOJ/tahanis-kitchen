@@ -2,20 +2,20 @@
 import { useEffect, useState } from "react";
 
 const themes = [
-  { id: "light", emoji: "☀️", name: "Vanilla Cream" },
-  { id: "honey", emoji: "🍯", name: "Warm Honey" },
-  { id: "lavender", emoji: "🫖", name: "Lavender Tea" },
-  { id: "mint", emoji: "🍪", name: "Mint Cookie" },
-  { id: "chocolate", emoji: "🍫", name: "Chocolate Truffle" },
-  { id: "coffee", emoji: "☕", name: "Coffee & Cream" },
-  { id: "plum", emoji: "🌙", name: "Midnight Plum" },
-  { id: "forest", emoji: "🌲", name: "Forest Night" },
+  { id: "light", emoji: "☀️", name: "Vanilla" },
+  { id: "honey", emoji: "🍯", name: "Honeycomb" },
+  { id: "lavender", emoji: "💜", name: "Lavender" },
+  { id: "mint", emoji: "🌿", name: "Mint" },
+  { id: "chocolate", emoji: "🍫", name: "Chocolate" },
+  { id: "coffee", emoji: "☕", name: "Espresso" },
+  { id: "plum", emoji: "🌙", name: "Plum" },
+  { id: "forest", emoji: "🌲", name: "Thyme" },
   { id: "berry", emoji: "🫐", name: "Berry Jam" },
-  { id: "cocoa", emoji: "🥛", name: "Warm Cocoa" },
+  { id: "cocoa", emoji: "🥛", name: "Brownie" },
 ];
 
 export default function ThemeSwitcher() {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("chocolate");
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function ThemeSwitcher() {
       <button
         onClick={() => setOpen((o) => !o)}
         className="theme-button h-9 px-3 flex items-center gap-2 text-base rounded-lg border shadow-sm transition-all hover:shadow-md"
-        style={{ 
+        style={{
           background: "var(--card)",
           color: "var(--foreground)",
           borderColor: "var(--border)"
@@ -50,7 +50,7 @@ export default function ThemeSwitcher() {
       {open && (
         <div
           className="absolute mt-2 right-0 border rounded-lg shadow-lg z-50 p-2 w-48 max-h-96 overflow-y-auto"
-          style={{ 
+          style={{
             background: "var(--card)",
             borderColor: "var(--border)"
           }}
@@ -63,7 +63,7 @@ export default function ThemeSwitcher() {
               key={t.id}
               onClick={() => changeTheme(t.id)}
               className="theme-button w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-opacity-80 transition-colors"
-              style={{ 
+              style={{
                 background: theme === t.id ? "var(--accent)" : "transparent",
                 color: "var(--foreground)"
               }}
@@ -72,7 +72,7 @@ export default function ThemeSwitcher() {
               <span>{t.name}</span>
             </button>
           ))}
-          
+
           <div className="text-xs font-semibold mt-3 mb-2 px-2" style={{ color: "var(--muted)" }}>
             DARK THEMES
           </div>
@@ -81,7 +81,7 @@ export default function ThemeSwitcher() {
               key={t.id}
               onClick={() => changeTheme(t.id)}
               className="theme-button w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-opacity-80 transition-colors"
-              style={{ 
+              style={{
                 background: theme === t.id ? "var(--accent)" : "transparent",
                 color: "var(--foreground)"
               }}
