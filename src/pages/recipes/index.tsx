@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 type RecipePreview = {
   id: string;
@@ -12,10 +13,18 @@ type RecipePreview = {
 export default function RecipesIndexPage() {
   const [recipes, setRecipes] = useState<RecipePreview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchRecipes();
+    checkUser();
   }, []);
+
+  async function checkUser() {
+    const { data } = await supabase.auth.getUser();
+    setUserId(data.user?.id || null);
+  }
 
   async function fetchRecipes() {
     setLoading(true);
@@ -99,11 +108,31 @@ export default function RecipesIndexPage() {
 
   return (
     <div className="max-w-4xl mx-auto mt-10">
-      <h1 className="text-3xl font-bold mb-6 text-rose-800">
-        Toto's Kitchen Recipes
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-rose-800">
+          Toto's Kitchen Recipes
+        </h1>
+        {userId && (
+          <Link
+            href="/recipes/new"
+            className="bg-rose-600 text-white px-4 py-2 rounded-lg shadow hover:bg-rose-700 transition"
+          >
+            + New Recipe
+          </Link>
+        )}
+      </div>
       {recipes.length === 0 ? (
-        <p>No recipes found.</p>
+        <div className="text-center py-10">
+          <p className="text-gray-600 mb-4">No recipes found.</p>
+          {userId && (
+            <Link
+              href="/recipes/new"
+              className="inline-block bg-rose-600 text-white px-6 py-3 rounded-lg shadow hover:bg-rose-700 transition"
+            >
+              Create Your First Recipe
+            </Link>
+          )}
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {recipes.map((r) => (

@@ -16,12 +16,14 @@ type RecipeImage = {
 
 type RecipeTag = {
   tags: {
+    id: string;
     name: string;
   };
 };
 
 type RecipeEffort = {
   efforts: {
+    id: string;
     name: string;
   };
 };
@@ -48,6 +50,58 @@ type Comment = {
   rating?: number | null;
 };
 
+type Option = { id: string; name: string };
+
+function Checklist({
+  label,
+  options,
+  selected,
+  setSelected,
+}: {
+  label: string;
+  options: Option[];
+  selected: string[];
+  setSelected: (v: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  function toggle(id: string) {
+    setSelected(
+      selected.includes(id)
+        ? selected.filter((s) => s !== id)
+        : [...selected, id]
+    );
+  }
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="px-3 py-2 border rounded bg-white shadow w-full flex justify-between"
+      >
+        <span>{label}</span>
+        <span>{open ? "▲" : "▼"}</span>
+      </button>
+
+      {open && (
+        <div className="absolute mt-2 bg-white border rounded shadow-md p-2 w-56 z-10 max-h-64 overflow-y-auto">
+          {options.map((opt) => (
+            <label key={opt.id} className="flex items-center gap-2 py-1 px-2">
+              <input
+                type="checkbox"
+                checked={selected.includes(opt.id)}
+                onChange={() => toggle(opt.id)}
+              />
+              <span>{opt.name}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function RecipePage() {
   const params = useParams();
   const router = useRouter();
@@ -65,10 +119,16 @@ export default function RecipePage() {
   const [title, setTitle] = useState("");
   const [ingredients, setIngredients] = useState("");
   const [instructions, setInstructions] = useState("");
+  const [cookTimeMins, setCookTimeMins] = useState("");
 
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [dbImages, setDbImages] = useState<RecipeImage[]>([]);
+
+  const [allTags, setAllTags] = useState<Option[]>([]);
+  const [allEfforts, setAllEfforts] = useState<Option[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedEfforts, setSelectedEfforts] = useState<string[]>([]);
 
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -77,10 +137,18 @@ export default function RecipePage() {
     if (!id) return;
     load();
     loadComments();
+    loadOptions();
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setUserId(data.user.id);
     });
   }, [id]);
+
+  async function loadOptions() {
+    const { data: tagsData } = await supabase.from("tags").select("*");
+    const { data: effortsData } = await supabase.from("efforts").select("*");
+    setAllTags(tagsData || []);
+    setAllEfforts(effortsData || []);
+  }
 
   async function load() {
     const { data, error } = await supabase
@@ -89,8 +157,8 @@ export default function RecipePage() {
         `
         *,
         recipe_images(*),
-        recipe_tags(tags(name)),
-        recipe_efforts(efforts(name))
+        recipe_tags(tags(id, name)),
+        recipe_efforts(efforts(id, name))
       `
       )
       .eq("id", id)
@@ -106,17 +174,26 @@ export default function RecipePage() {
       setTitle(data.title);
       setIngredients(data.ingredients);
       setInstructions(data.instructions);
+      setCookTimeMins(data.cook_time_mins?.toString() || "");
 
       if (data.recipe_tags) {
-        setTags(data.recipe_tags.map((rt: RecipeTag) => rt.tags.name));
+        const tagNames = data.recipe_tags.map((rt: RecipeTag) => rt.tags.name);
+        const tagIds = data.recipe_tags.map((rt: RecipeTag) => rt.tags.id);
+        setTags(tagNames);
+        setSelectedTags(tagIds);
       } else {
         setTags([]);
+        setSelectedTags([]);
       }
 
       if (data.recipe_efforts) {
-        setEfforts(data.recipe_efforts.map((re: RecipeEffort) => re.efforts.name));
+        const effortNames = data.recipe_efforts.map((re: RecipeEffort) => re.efforts.name);
+        const effortIds = data.recipe_efforts.map((re: RecipeEffort) => re.efforts.id);
+        setEfforts(effortNames);
+        setSelectedEfforts(effortIds);
       } else {
         setEfforts([]);
+        setSelectedEfforts([]);
       }
 
       if (data.user_id) {
@@ -243,10 +320,38 @@ export default function RecipePage() {
 
   async function saveChanges() {
     if (!userId || !recipe || recipe.user_id !== userId) return alert("Not allowed!");
+    
     await supabase
       .from("recipes")
-      .update({ title, ingredients, instructions })
+      .update({ 
+        title, 
+        ingredients, 
+        instructions,
+        cook_time_mins: cookTimeMins ? parseInt(cookTimeMins) : null
+      })
       .eq("id", id);
+
+    // Update tags
+    await supabase.from("recipe_tags").delete().eq("recipe_id", id);
+    if (selectedTags.length > 0) {
+      await supabase.from("recipe_tags").insert(
+        selectedTags.map((tagId) => ({
+          recipe_id: id,
+          tag_id: tagId,
+        }))
+      );
+    }
+
+    // Update efforts
+    await supabase.from("recipe_efforts").delete().eq("recipe_id", id);
+    if (selectedEfforts.length > 0) {
+      await supabase.from("recipe_efforts").insert(
+        selectedEfforts.map((effortId) => ({
+          recipe_id: id,
+          effort_id: effortId,
+        }))
+      );
+    }
 
     for (let i = 0; i < images.length; i++) {
       const file = images[i];
@@ -301,13 +406,11 @@ export default function RecipePage() {
     if (!confirmed) return;
 
     try {
-      // Delete images from storage first
       if ((recipe.recipe_images?.length ?? 0) > 0) {
         const paths = (recipe.recipe_images ?? []).map((img: RecipeImage) => img.image_url);
         await supabase.storage.from("recipe-images").remove(paths);
       }
 
-      // Delete recipe (CASCADE will handle related tables)
       const { error } = await supabase.from("recipes").delete().eq("id", id);
 
       if (error) {
@@ -348,20 +451,42 @@ export default function RecipePage() {
           />
           <input
             className="border p-2 w-full rounded"
+            placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <textarea
             className="border p-2 w-full rounded"
+            placeholder="Ingredients"
             value={ingredients}
             onChange={(e) => setIngredients(e.target.value)}
             rows={4}
           />
           <textarea
             className="border p-2 w-full rounded"
+            placeholder="Instructions"
             value={instructions}
             onChange={(e) => setInstructions(e.target.value)}
             rows={6}
+          />
+          <input
+            className="border p-2 w-full rounded"
+            type="number"
+            placeholder="Cook time (in minutes)"
+            value={cookTimeMins}
+            onChange={(e) => setCookTimeMins(e.target.value)}
+          />
+          <Checklist
+            label="Efforts"
+            options={allEfforts}
+            selected={selectedEfforts}
+            setSelected={setSelectedEfforts}
+          />
+          <Checklist
+            label="Tags"
+            options={allTags}
+            selected={selectedTags}
+            setSelected={setSelectedTags}
           />
           <div className="flex gap-2">
             <button
@@ -399,6 +524,11 @@ export default function RecipePage() {
           </div>
           <RecipeActions recipeId={id} />
           <div className="flex flex-wrap gap-2 mb-6">
+            {recipe.cook_time_mins && (
+              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                ⏱ {recipe.cook_time_mins} min
+              </span>
+            )}
             {tags.map((tag) => (
               <span
                 key={tag}
