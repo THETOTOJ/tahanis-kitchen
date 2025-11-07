@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type RecipePreview = {
   id: string;
@@ -101,7 +102,7 @@ export default function RecipesIndexPage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto mt-10">
-        <p>Loading recipes...</p>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -139,7 +140,7 @@ export default function RecipesIndexPage() {
             <Link
               key={r.id}
               href={`/recipes/${r.id}`}
-              className="block bg-white rounded-xl shadow hover:shadow-lg transition p-3"
+              className="recipe-card block bg-white rounded-xl shadow hover:shadow-lg transition p-3"
             >
               {r.firstImageUrl ? (
                 <img

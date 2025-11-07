@@ -4,67 +4,325 @@
 @tailwind utilities;
 
 /* =====================
-   Grandma Theming
+   Grandma's Cookbook Theming
+   Cozy, warm, readable themes
 ===================== */
 
-/* Base theme (default) */
+/* Light Vanilla Cream (Default) ☀️ */
 :root {
-  --background: #fff6e6; /* warm cream */
-  --foreground: #3b2f2f; /* soft brown */
-  --accent: #f7d6d0;     /* pastel pink */
-  --accent-dark: #d9a79c;
+  --background: #fff8f0;
+  --foreground: #3d2817;
   --card: #ffffff;
+  --card-hover: #fef5eb;
+  --accent: #e8b4a8;
+  --accent-hover: #d9a199;
+  --border: #e8d5c4;
+  --muted: #6b5d52;
+  --button-text: #3d2817;
 }
 
-/* Cozy Dark Chocolate 🍫 */
+/* Warm Honey 🍯 */
+[data-theme="honey"] {
+  --background: #fef6e8;
+  --foreground: #4a3618;
+  --card: #ffffff;
+  --card-hover: #fff9ed;
+  --accent: #f4c17a;
+  --accent-hover: #e5b268;
+  --border: #e8d5b5;
+  --muted: #6b5941;
+  --button-text: #4a3618;
+}
+
+/* Lavender Tea 🫖 */
+[data-theme="lavender"] {
+  --background: #f5f3f8;
+  --foreground: #3a2d4a;
+  --card: #ffffff;
+  --card-hover: #f0ecf5;
+  --accent: #b8a7d4;
+  --accent-hover: #a596c2;
+  --border: #d8d0e5;
+  --muted: #5d5169;
+  --button-text: #3a2d4a;
+}
+
+/* Mint Cookie 🍪 */
+[data-theme="mint"] {
+  --background: #f2f8f5;
+  --foreground: #2d4a3a;
+  --card: #ffffff;
+  --card-hover: #ebf5f0;
+  --accent: #a8d5ba;
+  --accent-hover: #96c4a8;
+  --border: #cde5d7;
+  --muted: #516b5d;
+  --button-text: #2d4a3a;
+}
+
+/* ==================
+   DARK THEMES
+================== */
+
+/* Chocolate Truffle 🍫 */
 [data-theme="chocolate"] {
-  --background: #2e1f1f; /* dark cocoa */
-  --foreground: #f2e2d2; /* cream text */
-  --accent: #a86f5c;     /* mocha */
-  --accent-dark: #7b4a3b;
-  --card: #3d2b2b;
+  --background: #2a1f1a;
+  --foreground: #e8d9c8;
+  --card: #3d2f27;
+  --card-hover: #4a3830;
+  --accent: #a67c6d;
+  --accent-hover: #b88b7a;
+  --border: #564437;
+  --muted: #b5a594;
+  --button-text: #f5ebe1;
 }
 
-/* Matcha Green 🍵 */
-[data-theme="matcha"] {
-  --background: #f0f7f0; /* pale green */
-  --foreground: #2c3d2c; /* deep green */
-  --accent: #a8d5ba;     /* light mint */
-  --accent-dark: #6ea381;
-  --card: #ffffff;
+/* Coffee & Cream ☕ */
+[data-theme="coffee"] {
+  --background: #1f1612;
+  --foreground: #e5ddd5;
+  --card: #2d2319;
+  --card-hover: #362a1f;
+  --accent: #8d6e5b;
+  --accent-hover: #9f7d68;
+  --border: #4a3a2d;
+  --muted: #b8a899;
+  --button-text: #f0e8e0;
 }
 
-/* Strawberry 🍓 */
-[data-theme="strawberry"] {
-  --background: #fff0f3; /* light pink */
-  --foreground: #2d1a1a; /* rich brownish */
-  --accent: #ff6b81;     /* bright strawberry red */
-  --accent-dark: #cc4455;
-  --card: #ffffff;
+/* Midnight Plum 🌙 */
+[data-theme="plum"] {
+  --background: #1f1626;
+  --foreground: #e5d9e8;
+  --card: #2d2235;
+  --card-hover: #362a3f;
+  --accent: #8d6b9f;
+  --accent-hover: #9f7bb0;
+  --border: #453654;
+  --muted: #b8a5c4;
+  --button-text: #f0e5f5;
 }
 
-/* Blueberry 🫐 */
-[data-theme="blueberry"] {
-  --background: #f3f5ff; /* pale blue */
-  --foreground: #1c1a3d; /* navy */
-  --accent: #6b7bff;     /* blueberry blue */
-  --accent-dark: #3a49c9;
-  --card: #ffffff;
+/* Forest Night 🌲 */
+[data-theme="forest"] {
+  --background: #1a2620;
+  --foreground: #d9e8e0;
+  --card: #263530;
+  --card-hover: #2f3f38;
+  --accent: #6b9f8d;
+  --accent-hover: #7bb09d;
+  --border: #3d4f47;
+  --muted: #a5c4b8;
+  --button-text: #e5f5ed;
 }
+
+/* Berry Jam 🫐 */
+[data-theme="berry"] {
+  --background: #1f1a26;
+  --foreground: #e5dde8;
+  --card: #2d2535;
+  --card-hover: #362e3f;
+  --accent: #8d6b9f;
+  --accent-hover: #9f7bb0;
+  --border: #453654;
+  --muted: #b8a5c4;
+  --button-text: #f0e5f5;
+}
+
+/* Warm Cocoa 🥛 */
+[data-theme="cocoa"] {
+  --background: #261f1d;
+  --foreground: #e8ddd9;
+  --card: #352d2a;
+  --card-hover: #3f3633;
+  --accent: #9f8d7b;
+  --accent-hover: #b09d8b;
+  --border: #4f4541;
+  --muted: #c4b8ad;
+  --button-text: #f5ede8;
+}
+
+/* ==================
+   BASE STYLES
+================== */
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Playfair Display", serif;
-  transition: background 0.3s, color 0.3s;
+  font-family: "Playfair Display", Georgia, serif;
+  transition: background 0.3s ease, color 0.3s ease;
+  line-height: 1.6;
 }
 
-button {
-  @apply px-3 py-2 rounded-lg shadow-sm;
+/* Card styles - affects recipe cards and other cards */
+.recipe-card,
+[class*="bg-white"],
+.card {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+.recipe-card:hover,
+[class*="hover:shadow"] {
+  background: var(--card-hover) !important;
+}
+
+/* Button styles */
+button:not(.theme-button):not(.modal-close),
+.btn,
+[class*="bg-rose"],
+[class*="bg-green"],
+[class*="bg-blue"],
+[class*="bg-yellow"],
+[class*="bg-red"],
+[class*="bg-gray"]:not([class*="bg-gray-50"]):not([class*="bg-gray-100"]):not([class*="bg-gray-200"]) {
+  background: var(--accent) !important;
+  color: var(--button-text) !important;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+button:hover:not(.theme-button):not(.modal-close),
+.btn:hover {
+  background: var(--accent-hover) !important;
+  transform: translateY(-1px);
+}
+
+/* Input fields */
+input,
+textarea,
+select {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted) !important;
+  opacity: 0.6;
+}
+
+/* Links */
+a {
+  color: var(--foreground);
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Navbar */
+nav {
+  background: var(--card) !important;
+  border-bottom: 2px solid var(--border);
+}
+
+/* Muted text */
+.text-gray-500,
+.text-gray-600 {
+  color: var(--muted) !important;
+}
+
+/* Tags and badges */
+.bg-green-100,
+.bg-yellow-100,
+.bg-blue-100 {
+  background: var(--accent) !important;
+  color: var(--button-text) !important;
+  opacity: 0.9;
+}
+
+/* Recipe image overlay fix */
+.recipe-card img {
+  background: var(--card);
+}
+
+/* Modal backgrounds */
+.fixed.inset-0 > div {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+}
+
+/* Dropdown menus */
+[class*="absolute"][class*="shadow"] {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+/* Special backgrounds */
+.bg-rose-50,
+.bg-amber-50,
+.bg-gray-50 {
+  background: var(--card) !important;
+}
+
+.bg-gray-100,
+.bg-gray-200 {
+  background: var(--background) !important;
+}
+
+/* Error and success messages */
+.bg-red-100 {
+  background: rgba(220, 38, 38, 0.1) !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+}
+
+.bg-green-100 {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+.text-red-700 {
+  color: #dc2626 !important;
+}
+
+.text-green-700 {
+  color: #16a34a !important;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
   background: var(--accent);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+/* Theme-aware text colors */
+h1, h2, h3, h4, h5, h6 {
   color: var(--foreground);
 }
 
-button:hover {
-  background: var(--accent-dark);
+.text-grandma-brown,
+.text-rose-800,
+.text-amber-800 {
+  color: var(--foreground) !important;
+}
+
+/* Ensure readability on all backgrounds */
+p, span, li, td, th {
+  color: var(--foreground);
+}
+
+/* Focus states */
+input:focus,
+textarea:focus,
+button:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }

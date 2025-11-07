@@ -187,19 +187,21 @@ export default function NewRecipe() {
         onChange={(e) => setIngredients(e.target.value)}
         placeholder="Ingredients"
         className="border rounded px-3 py-2"
+        rows={4}
       />
       <textarea
         value={instructions}
         onChange={(e) => setInstructions(e.target.value)}
         placeholder="Instructions"
         className="border rounded px-3 py-2"
+        rows={6}
       />
       <input
         value={cook_time_mins}
         type="number"
         onChange={(e) => setCookTime(e.target.value)}
         placeholder="Cook time (in minutes)"
-        className="border rounded px-3 py-2"
+        className="border rounded px-3 py-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
       <Checklist
         label="Efforts"

@@ -2,11 +2,16 @@
 import { useEffect, useState } from "react";
 
 const themes = [
-  { id: "light", emoji: "🌞" },
-  { id: "chocolate", emoji: "🍫" },
-  { id: "matcha", emoji: "🍵" },
-  { id: "strawberry", emoji: "🍓" },
-  { id: "blueberry", emoji: "🫐" },
+  { id: "light", emoji: "☀️", name: "Vanilla Cream" },
+  { id: "honey", emoji: "🍯", name: "Warm Honey" },
+  { id: "lavender", emoji: "🫖", name: "Lavender Tea" },
+  { id: "mint", emoji: "🍪", name: "Mint Cookie" },
+  { id: "chocolate", emoji: "🍫", name: "Chocolate Truffle" },
+  { id: "coffee", emoji: "☕", name: "Coffee & Cream" },
+  { id: "plum", emoji: "🌙", name: "Midnight Plum" },
+  { id: "forest", emoji: "🌲", name: "Forest Night" },
+  { id: "berry", emoji: "🫐", name: "Berry Jam" },
+  { id: "cocoa", emoji: "🥛", name: "Warm Cocoa" },
 ];
 
 export default function ThemeSwitcher() {
@@ -30,24 +35,59 @@ export default function ThemeSwitcher() {
     <div className="relative inline-block">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="h-8 w-8 flex items-center justify-center text-lg rounded border shadow-sm"
-        style={{ background: "var(--card)" }}
+        className="theme-button h-9 px-3 flex items-center gap-2 text-base rounded-lg border shadow-sm transition-all hover:shadow-md"
+        style={{ 
+          background: "var(--card)",
+          color: "var(--foreground)",
+          borderColor: "var(--border)"
+        }}
       >
-        {themes.find((t) => t.id === theme)?.emoji}
+        <span>{themes.find((t) => t.id === theme)?.emoji}</span>
+        <span className="hidden sm:inline text-sm">
+          {themes.find((t) => t.id === theme)?.name}
+        </span>
       </button>
       {open && (
         <div
-          className="absolute mt-1 left-0 border rounded shadow z-50 flex flex-col"
-          style={{ background: "var(--card)" }}
+          className="absolute mt-2 right-0 border rounded-lg shadow-lg z-50 p-2 w-48 max-h-96 overflow-y-auto"
+          style={{ 
+            background: "var(--card)",
+            borderColor: "var(--border)"
+          }}
         >
-          {themes.map((t) => (
+          <div className="text-xs font-semibold mb-2 px-2" style={{ color: "var(--muted)" }}>
+            LIGHT THEMES
+          </div>
+          {themes.slice(0, 4).map((t) => (
             <button
               key={t.id}
               onClick={() => changeTheme(t.id)}
-              className="h-8 w-8 flex items-center justify-center text-lg hover:opacity-80 rounded"
-              style={{ background: "transparent" }}
+              className="theme-button w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-opacity-80 transition-colors"
+              style={{ 
+                background: theme === t.id ? "var(--accent)" : "transparent",
+                color: "var(--foreground)"
+              }}
             >
-              {t.emoji}
+              <span className="text-lg">{t.emoji}</span>
+              <span>{t.name}</span>
+            </button>
+          ))}
+          
+          <div className="text-xs font-semibold mt-3 mb-2 px-2" style={{ color: "var(--muted)" }}>
+            DARK THEMES
+          </div>
+          {themes.slice(4).map((t) => (
+            <button
+              key={t.id}
+              onClick={() => changeTheme(t.id)}
+              className="theme-button w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-opacity-80 transition-colors"
+              style={{ 
+                background: theme === t.id ? "var(--accent)" : "transparent",
+                color: "var(--foreground)"
+              }}
+            >
+              <span className="text-lg">{t.emoji}</span>
+              <span>{t.name}</span>
             </button>
           ))}
         </div>
