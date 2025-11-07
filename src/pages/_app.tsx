@@ -3,6 +3,7 @@ import type { AppProps } from "next/app"
 import Navbar from "@/components/Navbar"
 import { useEffect } from "react"
 import { supabase } from "@/lib/supabaseClient"
+import InstallPrompt from "@/components/InstallPrompt"
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <main className="p-4">
         <Component {...pageProps} />
       </main>
+      <InstallPrompt />
     </>
   )
 }
