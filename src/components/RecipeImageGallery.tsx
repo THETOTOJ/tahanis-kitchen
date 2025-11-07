@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, X, ZoomIn, ImageOff } from "lucide-react";
+import Image from "next/image";
 
 interface RecipeImageGalleryProps {
   images: string[];
@@ -191,7 +192,7 @@ export default function RecipeImageGallery({
               </>
             )}
 
-            <img
+            <Image
               src={images[currentImageIndex]}
               alt={`Recipe image ${currentImageIndex + 1}`}
               className="max-w-full max-h-full object-contain"
@@ -225,7 +226,7 @@ export default function RecipeImageGallery({
                         : "border-transparent opacity-60 hover:opacity-80"
                     }`}
                   >
-                    <img
+                    <Image
                       src={src}
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
@@ -258,7 +259,7 @@ function ImageWithFallback({
       <ImageOff size={48} />
     </div>
   ) : (
-    <img
+    <Image
       src={src}
       alt={alt}
       className={className}

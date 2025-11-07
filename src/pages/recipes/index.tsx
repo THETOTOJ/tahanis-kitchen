@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Image from "next/image";
 
 type RecipePreview = {
   id: string;
@@ -29,7 +30,7 @@ export default function RecipesIndexPage() {
 
   async function fetchRecipes() {
     setLoading(true);
-    
+
     const { data: recipesData, error: recipesError } = await supabase
       .from("recipes")
       .select("id, title, cook_time_mins")
@@ -74,11 +75,11 @@ export default function RecipesIndexPage() {
         let imageUrl: string | null = null;
         if (firstImage) {
           console.log(`Creating signed URL for recipe ${recipe.id}, image:`, firstImage.image_url);
-          
+
           const { data: signedUrl, error: urlError } = await supabase.storage
             .from("recipe-images")
             .createSignedUrl(firstImage.image_url, 3600);
-          
+
           if (urlError) {
             console.error(`Error creating signed URL for ${firstImage.image_url}:`, urlError);
           } else {
@@ -111,7 +112,7 @@ export default function RecipesIndexPage() {
     <div className="max-w-4xl mx-auto mt-10">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-rose-800">
-          Toto's Kitchen Recipes
+          Recipes
         </h1>
         {userId && (
           <Link
@@ -143,7 +144,7 @@ export default function RecipesIndexPage() {
               className="recipe-card block bg-white rounded-xl shadow hover:shadow-lg transition p-3"
             >
               {r.firstImageUrl ? (
-                <img
+                <Image
                   src={r.firstImageUrl}
                   alt={r.title}
                   className="rounded-md h-40 w-full object-cover"

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import SortableImageUploader from "@/components/SortableImageUploader";
 import { useParams, useRouter } from "next/navigation";
@@ -133,24 +133,15 @@ export default function RecipePage() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
 
-  useEffect(() => {
-    if (!id) return;
-    load();
-    loadComments();
-    loadOptions();
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setUserId(data.user.id);
-    });
-  }, [id]);
-
-  async function loadOptions() {
+  const loadOptions = useCallback(async () => {
     const { data: tagsData } = await supabase.from("tags").select("*");
     const { data: effortsData } = await supabase.from("efforts").select("*");
     setAllTags(tagsData || []);
     setAllEfforts(effortsData || []);
-  }
+  }, []);
 
-  async function load() {
+  const load = useCallback(async () => {
+    if (!id) return;
     const { data, error } = await supabase
       .from("recipes")
       .select(
@@ -237,9 +228,10 @@ export default function RecipePage() {
         setImages([]);
       }
     }
-  }
+  }, [id]);
 
-  async function loadComments() {
+  const loadComments = useCallback(async () => {
+    if (!id) return;
     const { data, error } = await supabase
       .from("comments")
       .select(
@@ -276,7 +268,17 @@ export default function RecipePage() {
     );
 
     setComments(commentsWithSignedUrls);
-  }
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    load();
+    loadComments();
+    loadOptions();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id);
+    });
+  }, [id, load, loadComments, loadOptions]);
 
   async function submitComment() {
     if (!userId) return alert("Please log in to comment");
