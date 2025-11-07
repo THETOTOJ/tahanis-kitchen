@@ -61,7 +61,7 @@ export default function InstallPrompt() {
                 <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                         <span className="text-2xl">🍲</span>
-                        <h3 className="font-bold text-lg">Install Toto's Kitchen</h3>
+                        <h3 className="font-bold text-lg">Install Get Stuffed!</h3>
                     </div>
                     <button
                         onClick={dismissPrompt}
@@ -96,7 +96,7 @@ export default function InstallPrompt() {
                                 2
                             </div>
                             <div>
-                                <p className="font-semibold mb-1">Select "Add to Home Screen"</p>
+                                <p className="font-semibold mb-1">Select &quot;Add to Home Screen&quot;</p>
                                 <div className="flex items-center gap-2 text-green-600">
                                     <Plus size={18} />
                                     <span>(scroll down if needed)</span>
@@ -109,7 +109,7 @@ export default function InstallPrompt() {
                                 3
                             </div>
                             <div>
-                                <p className="font-semibold">Tap "Add" to confirm</p>
+                                <p className="font-semibold">Tap &quot;Add&quot; to confirm</p>
                             </div>
                         </div>
                     </div>
@@ -135,7 +135,7 @@ export default function InstallPrompt() {
                                 2
                             </div>
                             <div>
-                                <p className="font-semibold mb-1">Select "Add to Home screen" or "Install app"</p>
+                                <p className="font-semibold mb-1">Select &quot;Add to Home screen&quot; or &quot;Install app&quot;</p>
                             </div>
                         </div>
 
@@ -144,7 +144,7 @@ export default function InstallPrompt() {
                                 3
                             </div>
                             <div>
-                                <p className="font-semibold">Tap "Add" or "Install" to confirm</p>
+                                <p className="font-semibold">Tap &quot;Add&quot; or &quot;Install&quot; to confirm</p>
                             </div>
                         </div>
                     </div>

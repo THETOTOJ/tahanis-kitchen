@@ -69,7 +69,7 @@ export default function Navbar() {
             href="/recipes"
             className="font-bold text-lg sm:text-xl text-grandma-brown hover:underline flex-shrink-0"
           >
-            🍲 Get Stuffed ! !
+            🍲 Get Stuffed !
           </Link>
 
           {/* Desktop Navigation */}

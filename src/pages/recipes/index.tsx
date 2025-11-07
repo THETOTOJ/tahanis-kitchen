@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Image from "next/image";
 import Head from "next/head";
@@ -17,7 +16,6 @@ export default function RecipesIndexPage() {
   const [recipes, setRecipes] = useState<RecipePreview[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     fetchRecipes();

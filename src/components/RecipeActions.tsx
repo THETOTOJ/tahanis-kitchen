@@ -1,6 +1,6 @@
 "use client";
 import { supabase } from "@/lib/supabaseClient";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { Tables } from "@/types/database.types";
 
 export default function RecipeActions({ recipeId }: { recipeId: string }) {
@@ -9,9 +9,30 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
   const [collections, setCollections] = useState<Tables<"collections">[]>([]);
   const [newCollectionName, setNewCollectionName] = useState("");
 
+  const checkFavorite = useCallback(async () => {
+    const user = await getUser();
+    if (!user) return;
+
+    try {
+      const favCollection = await getFavoritesCollection(user.id);
+
+      const { data } = await supabase
+        .from("collection_recipes")
+        .select("*")
+        .eq("collection_id", favCollection.id)
+        .eq("recipe_id", recipeId)
+        .maybeSingle();
+
+      setIsFav(!!data);
+    } catch (error) {
+      console.error("Error checking favorite:", error);
+      setIsFav(false);
+    }
+  }, [recipeId]);
+
   useEffect(() => {
     checkFavorite();
-  }, []);
+  }, [checkFavorite]);
 
   async function getUser() {
     const {
@@ -43,27 +64,6 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
     }
 
     return newCollection;
-  }
-
-  async function checkFavorite() {
-    const user = await getUser();
-    if (!user) return;
-
-    try {
-      const favCollection = await getFavoritesCollection(user.id);
-
-      const { data } = await supabase
-        .from("collection_recipes")
-        .select("*")
-        .eq("collection_id", favCollection.id)
-        .eq("recipe_id", recipeId)
-        .maybeSingle();
-
-      setIsFav(!!data);
-    } catch (error) {
-      console.error("Error checking favorite:", error);
-      setIsFav(false);
-    }
   }
 
   async function toggleFavorite() {

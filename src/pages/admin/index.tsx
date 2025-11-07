@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Head from "next/head";
 
@@ -36,13 +36,7 @@ export default function AdminPage() {
   const [newEffort, setNewEffort] = useState("");
   const [editingEffortId, setEditingEffortId] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadUsers();
-    loadTags();
-    loadEfforts();
-  }, [page, search]);
-
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     let query = supabase
       .from("users")
       .select("*", { count: "exact" })
@@ -56,7 +50,23 @@ export default function AdminPage() {
     const { data, count } = await query;
     setUsers(data || []);
     setTotalUsers(count || 0);
-  }
+  }, [page, search]);
+
+  const loadTags = useCallback(async () => {
+    const { data } = await supabase.from("tags").select("*").order("name");
+    setTags(data || []);
+  }, []);
+
+  const loadEfforts = useCallback(async () => {
+    const { data } = await supabase.from("efforts").select("*").order("name");
+    setEfforts(data || []);
+  }, []);
+
+  useEffect(() => {
+    loadUsers();
+    loadTags();
+    loadEfforts();
+  }, [loadUsers, loadTags, loadEfforts]);
 
   async function toggleBan(u: User) {
     await supabase.from("users").update({ banned: !u.banned }).eq("id", u.id);
@@ -69,11 +79,6 @@ export default function AdminPage() {
       .update({ is_admin: !u.is_admin })
       .eq("id", u.id);
     loadUsers();
-  }
-
-  async function loadTags() {
-    const { data } = await supabase.from("tags").select("*").order("name");
-    setTags(data || []);
   }
 
   async function addTag() {
@@ -93,11 +98,6 @@ export default function AdminPage() {
     if (!confirm("Are you sure you want to delete this tag?")) return;
     await supabase.from("tags").delete().eq("id", id);
     loadTags();
-  }
-
-  async function loadEfforts() {
-    const { data } = await supabase.from("efforts").select("*").order("name");
-    setEfforts(data || []);
   }
 
   async function addEffort() {

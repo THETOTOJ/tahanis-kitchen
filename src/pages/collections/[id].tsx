@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import type { Tables } from "@/types/database.types";
@@ -13,11 +13,7 @@ export default function CollectionPage() {
   );
   const [recipes, setRecipes] = useState<Tables<"recipes">[]>([]);
 
-  useEffect(() => {
-    load();
-  }, [id]);
-
-  async function load() {
+  const load = useCallback(async () => {
     const { data: coll } = await supabase
       .from("collections")
       .select("*")
@@ -35,8 +31,13 @@ export default function CollectionPage() {
       collectionRecipes?.map((r) => r.recipes).filter(Boolean) ?? [];
 
     setRecipes(mapped);
-  }
+  }, [id]);
 
+  useEffect(() => {
+    if (!id) return;
+    load();
+  }, [load, id]);
+  
   if (!collection) return <p>Loading...</p>;
 
   return (

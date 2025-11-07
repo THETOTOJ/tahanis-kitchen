@@ -20,6 +20,9 @@ export default function SortableImageUploader({
 }: SortableImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  // use the images prop to avoid unused-variable warning
+  const imageCount = images.length;
+
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files) return;
     const newFiles = Array.from(e.target.files);
@@ -45,6 +48,8 @@ export default function SortableImageUploader({
       <div className="flex gap-2">
         {previews.map((src, i) => (
           <div key={i} className="relative h-48 w-36 flex-shrink-0">
+            {/* allow <img> for object URLs (blob URLs) */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src || placeholder}
               alt="recipe image"
@@ -63,9 +68,16 @@ export default function SortableImageUploader({
         {/* Upload button */}
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="h-48 w-36 flex-shrink-0 flex items-center justify-center border-2 border-dashed border-gray-400 rounded-lg cursor-pointer text-gray-500 hover:bg-gray-50"
+          className="relative h-48 w-36 flex-shrink-0 flex items-center justify-center border-2 border-dashed border-gray-400 rounded-lg cursor-pointer text-gray-500 hover:bg-gray-50"
+          aria-label={`Upload images (${imageCount} added)`}
         >
-          +
+          <span className="text-2xl">+</span>
+
+          {imageCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-accent text-white text-xs px-2 py-0.5 rounded-full">
+              {imageCount}
+            </span>
+          )}
         </div>
       </div>
 
