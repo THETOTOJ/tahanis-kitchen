@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabaseClient"
 import { Tables } from "@/types/database.types"
+import Head from "next/head"
 
 export default function CollectionsPage() {
   const [collections, setCollections] = useState<Tables<"collections">[]>([])
@@ -22,18 +23,23 @@ export default function CollectionsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4">My Collections</h1>
-      <Link href="/collections/new" className="bg-green-600 text-white px-4 py-2 rounded">
-        + New Collection
-      </Link>
-      <ul className="mt-4 space-y-2">
-        {collections.map(c => (
-          <li key={c.id} className="border p-2 rounded">
-            <Link href={`/collections/${c.id}`}>{c.name}</Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <Head>
+        <title>My Collections | Get Stuffed !</title>
+      </Head>
+      <div className="max-w-2xl mx-auto mt-10">
+        <h1 className="text-2xl font-bold mb-4">My Collections</h1>
+        <Link href="/collections/new" className="bg-green-600 text-white px-4 py-2 rounded">
+          + New Collection
+        </Link>
+        <ul className="mt-4 space-y-2">
+          {collections.map(c => (
+            <li key={c.id} className="border p-2 rounded">
+              <Link href={`/collections/${c.id}`}>{c.name}</Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
   )
 }

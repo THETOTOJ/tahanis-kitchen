@@ -1,5 +1,6 @@
 "use client";
 import { supabase } from "@/lib/supabaseClient";
+import Head from "next/head";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -104,6 +105,10 @@ export default function Login() {
   }
 
   return (
+     <>
+    <Head>
+      <title>{isRegister ? "Register" : "Login"} | Get Stuffed !</title>
+    </Head>
     <div className="max-w-sm mx-auto mt-20 flex flex-col gap-4 bg-rose-50 p-6 rounded-xl shadow-md">
       <h1 className="text-2xl font-bold text-rose-800 mb-2 text-center">
         {isRegister ? "Register" : "Login"}
@@ -198,5 +203,6 @@ export default function Login() {
         </div>
       )}
     </div>
+    </>
   );
 }

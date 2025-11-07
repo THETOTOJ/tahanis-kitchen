@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import type { Tables } from "@/types/database.types";
+import Head from "next/head";
 
 export default function CollectionPage() {
   const params = useParams();
@@ -39,15 +40,20 @@ export default function CollectionPage() {
   if (!collection) return <p>Loading...</p>;
 
   return (
-    <div className="max-w-2xl mx-auto mt-10">
-      <h1 className="text-2xl font-bold">{collection.name}</h1>
-      <ul className="mt-4 space-y-2">
-        {recipes.map((r) => (
-          <li key={r.id} className="border p-2 rounded">
-            {r.title}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <Head>
+        <title>{collection?.name ? `${collection.name} | Get Stuffed !` : "Collection | Get Stuffed !"}</title>
+      </Head>
+      <div className="max-w-2xl mx-auto mt-10">
+        <h1 className="text-2xl font-bold">{collection.name}</h1>
+        <ul className="mt-4 space-y-2">
+          {recipes.map((r) => (
+            <li key={r.id} className="border p-2 rounded">
+              {r.title}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
   );
 }

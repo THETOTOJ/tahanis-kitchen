@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Image from "next/image";
+import Head from "next/head";
 
 type RecipePreview = {
   id: string;
@@ -109,6 +110,10 @@ export default function RecipesIndexPage() {
   }
 
   return (
+    <>
+        <Head>
+      <title>Get Stuffed ! | Recipe Collection</title>
+    </Head>
     <div className="max-w-4xl mx-auto mt-10">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-rose-800">
@@ -167,5 +172,6 @@ export default function RecipesIndexPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

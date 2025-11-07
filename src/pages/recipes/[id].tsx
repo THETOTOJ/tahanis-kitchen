@@ -7,6 +7,7 @@ import RecipeImageGallery from "@/components/RecipeImageGallery";
 import RecipeActions from "@/components/RecipeActions";
 import Image from "next/image";
 import type { Tables } from "@/types/database.types";
+import Head from "next/head";
 
 type RecipeImage = {
   id: string;
@@ -322,12 +323,12 @@ export default function RecipePage() {
 
   async function saveChanges() {
     if (!userId || !recipe || recipe.user_id !== userId) return alert("Not allowed!");
-    
+
     await supabase
       .from("recipes")
-      .update({ 
-        title, 
-        ingredients, 
+      .update({
+        title,
+        ingredients,
         instructions,
         cook_time_mins: cookTimeMins ? parseInt(cookTimeMins) : null
       })
@@ -433,240 +434,245 @@ export default function RecipePage() {
   const canEdit = userId === recipe.user_id;
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 space-y-4">
-      {canEdit && !isEditing && (
-        <button
-          onClick={() => setIsEditing(true)}
-          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-        >
-          Edit Recipe
-        </button>
-      )}
-      {isEditing ? (
-        <>
-          <SortableImageUploader
-            images={images}
-            setImages={setImages}
-            previews={previews}
-            setPreviews={setPreviews}
-            onRemove={deleteImage}
-          />
-          <input
-            className="border p-2 w-full rounded"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <textarea
-            className="border p-2 w-full rounded"
-            placeholder="Ingredients"
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-            rows={4}
-          />
-          <textarea
-            className="border p-2 w-full rounded"
-            placeholder="Instructions"
-            value={instructions}
-            onChange={(e) => setInstructions(e.target.value)}
-            rows={6}
-          />
-          <input
-            className="border p-2 w-full rounded"
-            type="number"
-            placeholder="Cook time (in minutes)"
-            value={cookTimeMins}
-            onChange={(e) => setCookTimeMins(e.target.value)}
-          />
-          <Checklist
-            label="Efforts"
-            options={allEfforts}
-            selected={selectedEfforts}
-            setSelected={setSelectedEfforts}
-          />
-          <Checklist
-            label="Tags"
-            options={allTags}
-            selected={selectedTags}
-            setSelected={setSelectedTags}
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={saveChanges}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              Save
-            </button>
-            <button
-              onClick={() => {
-                setIsEditing(false);
-                load();
-              }}
-              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={deleteRecipe}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              Delete Recipe
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold">{recipe.title}</h1>
-            {author && (
-              <p className="text-gray-600 text-sm">
-                by <span className="font-medium">{author}</span>
-              </p>
-            )}
-          </div>
-          <RecipeActions recipeId={id} />
-          <div className="flex flex-wrap gap-2 mb-6">
-            {recipe.cook_time_mins && (
-              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                ⏱ {recipe.cook_time_mins} min
-              </span>
-            )}
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full"
+    <>
+      <Head>
+        <title>{recipe?.title ? `${recipe.title} | Get Stuffed !` : "Recipe | Get Stuffed !"}</title>
+      </Head>
+      <div className="max-w-2xl mx-auto mt-10 space-y-4">
+        {canEdit && !isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+          >
+            Edit Recipe
+          </button>
+        )}
+        {isEditing ? (
+          <>
+            <SortableImageUploader
+              images={images}
+              setImages={setImages}
+              previews={previews}
+              setPreviews={setPreviews}
+              onRemove={deleteImage}
+            />
+            <input
+              className="border p-2 w-full rounded"
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <textarea
+              className="border p-2 w-full rounded"
+              placeholder="Ingredients"
+              value={ingredients}
+              onChange={(e) => setIngredients(e.target.value)}
+              rows={4}
+            />
+            <textarea
+              className="border p-2 w-full rounded"
+              placeholder="Instructions"
+              value={instructions}
+              onChange={(e) => setInstructions(e.target.value)}
+              rows={6}
+            />
+            <input
+              className="border p-2 w-full rounded"
+              type="number"
+              placeholder="Cook time (in minutes)"
+              value={cookTimeMins}
+              onChange={(e) => setCookTimeMins(e.target.value)}
+            />
+            <Checklist
+              label="Efforts"
+              options={allEfforts}
+              selected={selectedEfforts}
+              setSelected={setSelectedEfforts}
+            />
+            <Checklist
+              label="Tags"
+              options={allTags}
+              selected={selectedTags}
+              setSelected={setSelectedTags}
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={saveChanges}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               >
-                #{tag}
-              </span>
-            ))}
-            {efforts.map((effort) => (
-              <span
-                key={effort}
-                className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full"
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  load();
+                }}
+                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
               >
-                ⏳ {effort}
-              </span>
-            ))}
-          </div>
-
-          <RecipeImageGallery images={previews} />
-
-          <div className="space-y-6 mt-8">
-            <div>
-              <h2 className="text-2xl font-semibold mb-3 text-gray-800">
-                Ingredients
-              </h2>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="whitespace-pre-wrap leading-relaxed">
-                  {recipe.ingredients}
-                </p>
-              </div>
+                Cancel
+              </button>
+              <button
+                onClick={deleteRecipe}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Delete Recipe
+              </button>
             </div>
-
-            <div>
-              <h2 className="text-2xl font-semibold mb-3 text-gray-800">
-                Instructions
-              </h2>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="whitespace-pre-wrap leading-relaxed">
-                  {recipe.instructions}
+          </>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-3xl font-bold">{recipe.title}</h1>
+              {author && (
+                <p className="text-gray-600 text-sm">
+                  by <span className="font-medium">{author}</span>
                 </p>
-              </div>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-semibold mb-3 text-gray-800">
-                Comments ({comments.length})
-              </h2>
-
-              {userId && (
-                <div className="bg-gray-50 p-4 rounded-lg mb-4">
-                  <textarea
-                    className="border p-2 w-full rounded mb-2"
-                    placeholder="Share your thoughts about this recipe..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    rows={3}
-                  />
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={submitComment}
-                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    >
-                      Post Comment
-                    </button>
-                  </div>
-                </div>
               )}
+            </div>
+            <RecipeActions recipeId={id} />
+            <div className="flex flex-wrap gap-2 mb-6">
+              {recipe.cook_time_mins && (
+                <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                  ⏱ {recipe.cook_time_mins} min
+                </span>
+              )}
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full"
+                >
+                  #{tag}
+                </span>
+              ))}
+              {efforts.map((effort) => (
+                <span
+                  key={effort}
+                  className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full"
+                >
+                  ⏳ {effort}
+                </span>
+              ))}
+            </div>
 
-              <div className="space-y-4">
-                {comments.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">
-                    No comments yet. Be the first to share your thoughts!
+            <RecipeImageGallery images={previews} />
+
+            <div className="space-y-6 mt-8">
+              <div>
+                <h2 className="text-2xl font-semibold mb-3 text-gray-800">
+                  Ingredients
+                </h2>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="whitespace-pre-wrap leading-relaxed">
+                    {recipe.ingredients}
                   </p>
-                ) : (
-                  comments.map((comment) => (
-                    <div
-                      key={comment.id}
-                      className="bg-white border rounded-lg p-4"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0">
-                          {comment.users?.profile_picture_url ? (
-                            <Image
-                              src={comment.users.profile_picture_url}
-                              alt={comment.users.username}
-                              width={40}
-                              height={40}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                              <span className="text-gray-600 font-semibold">
-                                {comment.users?.username
-                                  ?.charAt(0)
-                                  .toUpperCase() || "?"}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                </div>
+              </div>
 
-                        <div className="flex-grow">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-gray-900">
-                                {comment.users?.username || "Anonymous"}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-gray-500">
-                                {new Date(
-                                  comment.created_at
-                                ).toLocaleDateString()}
-                              </span>
-                              {comment.user_id === userId && (
-                                <button
-                                  onClick={() => deleteComment(comment.id)}
-                                  className="text-red-500 hover:text-red-700 text-sm"
-                                >
-                                  Delete
-                                </button>
-                              )}
-                            </div>
+              <div>
+                <h2 className="text-2xl font-semibold mb-3 text-gray-800">
+                  Instructions
+                </h2>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <p className="whitespace-pre-wrap leading-relaxed">
+                    {recipe.instructions}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-semibold mb-3 text-gray-800">
+                  Comments ({comments.length})
+                </h2>
+
+                {userId && (
+                  <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                    <textarea
+                      className="border p-2 w-full rounded mb-2"
+                      placeholder="Share your thoughts about this recipe..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      rows={3}
+                    />
+                    <div className="flex items-center justify-between">
+                      <button
+                        onClick={submitComment}
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                      >
+                        Post Comment
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  {comments.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">
+                      No comments yet. Be the first to share your thoughts!
+                    </p>
+                  ) : (
+                    comments.map((comment) => (
+                      <div
+                        key={comment.id}
+                        className="bg-white border rounded-lg p-4"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0">
+                            {comment.users?.profile_picture_url ? (
+                              <Image
+                                src={comment.users.profile_picture_url}
+                                alt={comment.users.username}
+                                width={40}
+                                height={40}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                <span className="text-gray-600 font-semibold">
+                                  {comment.users?.username
+                                    ?.charAt(0)
+                                    .toUpperCase() || "?"}
+                                </span>
+                              </div>
+                            )}
                           </div>
-                          <p className="text-gray-700 whitespace-pre-wrap">
-                            {comment.body}
-                          </p>
+
+                          <div className="flex-grow">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-gray-900">
+                                  {comment.users?.username || "Anonymous"}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-500">
+                                  {new Date(
+                                    comment.created_at
+                                  ).toLocaleDateString()}
+                                </span>
+                                {comment.user_id === userId && (
+                                  <button
+                                    onClick={() => deleteComment(comment.id)}
+                                    className="text-red-500 hover:text-red-700 text-sm"
+                                  >
+                                    Delete
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-gray-700 whitespace-pre-wrap">
+                              {comment.body}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </>
   );
 }

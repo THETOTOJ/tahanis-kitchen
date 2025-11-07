@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import SortableImageUploader from "@/components/SortableImageUploader";
+import Head from "next/head";
+import { useRouter } from "next/router";
 
 type Option = { id: string; name: string };
 
@@ -27,6 +29,7 @@ function Checklist({
   }
 
   return (
+
     <div className="relative">
       <button
         type="button"
@@ -56,6 +59,8 @@ function Checklist({
 }
 
 export default function NewRecipe() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [cook_time_mins, setCookTime] = useState("");
 
@@ -71,6 +76,18 @@ export default function NewRecipe() {
 
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function checkAuth() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/auth/login");
+      } else {
+        setLoading(false);
+      }
+    }
+    checkAuth();
+  }, [router]);
 
   useEffect(() => {
     async function fetchOptions() {
@@ -161,71 +178,82 @@ export default function NewRecipe() {
     setSelectedTags([]);
     setSelectedEfforts([]);
   }
-
+  if (loading) {
+    return (
+      <div className="max-w-xl mx-auto mt-20 text-center">
+        <p>Checking authentication...</p>
+      </div>
+    );
+  }
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-xl mx-auto mt-10 bg-amber-50 p-6 rounded-xl shadow-md flex flex-col gap-4"
-    >
-      <h1 className="text-2xl font-bold text-amber-800">Add Recipe</h1>
-
-      <SortableImageUploader
-        images={images}
-        setImages={setImages}
-        previews={previews}
-        setPreviews={setPreviews}
-      />
-
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
-        className="border rounded px-3 py-2"
-      />
-      <textarea
-        value={ingredients}
-        onChange={(e) => setIngredients(e.target.value)}
-        placeholder="Ingredients"
-        className="border rounded px-3 py-2"
-        rows={4}
-      />
-      <textarea
-        value={instructions}
-        onChange={(e) => setInstructions(e.target.value)}
-        placeholder="Instructions"
-        className="border rounded px-3 py-2"
-        rows={6}
-      />
-      <input
-        value={cook_time_mins}
-        type="number"
-        onChange={(e) => setCookTime(e.target.value)}
-        placeholder="Cook time (in minutes)"
-        className="border rounded px-3 py-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-      />
-      <Checklist
-        label="Efforts"
-        options={efforts}
-        selected={selectedEfforts}
-        setSelected={setSelectedEfforts}
-      />
-
-      <Checklist
-        label="Tags"
-        options={tags}
-        selected={selectedTags}
-        setSelected={setSelectedTags}
-      />
-
-      <button
-        type="submit"
-        className="bg-rose-600 text-white py-2 rounded hover:bg-rose-700"
+    <>
+      <Head>
+        <title>Add New Recipe | Get Stuffed !</title>
+      </Head>
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-xl mx-auto mt-10 bg-amber-50 p-6 rounded-xl shadow-md flex flex-col gap-4"
       >
-        Save
-      </button>
+        <h1 className="text-2xl font-bold text-amber-800">Add Recipe</h1>
 
-      {error && <p className="text-red-600">{error}</p>}
-      {success && <p className="text-green-600">{success}</p>}
-    </form>
+        <SortableImageUploader
+          images={images}
+          setImages={setImages}
+          previews={previews}
+          setPreviews={setPreviews}
+        />
+
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+          className="border rounded px-3 py-2"
+        />
+        <textarea
+          value={ingredients}
+          onChange={(e) => setIngredients(e.target.value)}
+          placeholder="Ingredients"
+          className="border rounded px-3 py-2"
+          rows={4}
+        />
+        <textarea
+          value={instructions}
+          onChange={(e) => setInstructions(e.target.value)}
+          placeholder="Instructions"
+          className="border rounded px-3 py-2"
+          rows={6}
+        />
+        <input
+          value={cook_time_mins}
+          type="number"
+          onChange={(e) => setCookTime(e.target.value)}
+          placeholder="Cook time (in minutes)"
+          className="border rounded px-3 py-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+        <Checklist
+          label="Efforts"
+          options={efforts}
+          selected={selectedEfforts}
+          setSelected={setSelectedEfforts}
+        />
+
+        <Checklist
+          label="Tags"
+          options={tags}
+          selected={selectedTags}
+          setSelected={setSelectedTags}
+        />
+
+        <button
+          type="submit"
+          className="bg-rose-600 text-white py-2 rounded hover:bg-rose-700"
+        >
+          Save
+        </button>
+
+        {error && <p className="text-red-600">{error}</p>}
+        {success && <p className="text-green-600">{success}</p>}
+      </form>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
+import Head from "next/head"
 
 export default function NewCollection() {
   const [name, setName] = useState("")
@@ -21,6 +22,10 @@ export default function NewCollection() {
   }
 
   return (
+     <>
+    <Head>
+      <title>Create Collection | Get Stuffed !</title>
+    </Head>
     <div className="max-w-md mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-4">New Collection</h1>
       <input
@@ -37,5 +42,6 @@ export default function NewCollection() {
         Create
       </button>
     </div>
+    </>
   )
 }

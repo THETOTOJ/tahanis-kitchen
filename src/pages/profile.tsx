@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Tables } from "@/types/database.types";
 import Image from "next/image";
+import Head from "next/head";
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<Tables<"users"> | null>(null);
@@ -136,6 +137,10 @@ export default function ProfilePage() {
   }
 
   return (
+     <>
+    <Head>
+      <title>My Profile | Get Stuffed !</title>
+    </Head>
     <div className="max-w-md mx-auto mt-10 space-y-4 bg-rose-50 p-6 rounded-xl shadow-md">
       <h1 className="text-2xl font-bold text-center text-rose-800 mb-4">
         My Profile
@@ -212,5 +217,6 @@ export default function ProfilePage() {
         </div>
       )}
     </div>
+    </>
   );
 }
