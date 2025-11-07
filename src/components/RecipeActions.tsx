@@ -28,12 +28,10 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
       .eq("name", "Favorites")
       .limit(1);
 
-    // Check if we found an existing collection
     if (favCollections && favCollections.length > 0) {
       return favCollections[0];
     }
 
-    // Create one if it doesn't exist
     const { data: newCollection, error } = await supabase
       .from("collections")
       .insert({ user_id: userId, name: "Favorites", is_public: false })
@@ -56,10 +54,10 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
 
       const { data } = await supabase
         .from("collection_recipes")
-        .select("recipe_id")
+        .select("*")
         .eq("collection_id", favCollection.id)
         .eq("recipe_id", recipeId)
-        .single();
+        .maybeSingle();
 
       setIsFav(!!data);
     } catch (error) {
@@ -111,10 +109,10 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
   async function toggleInCollection(collectionId: string) {
     const { data } = await supabase
       .from("collection_recipes")
-      .select("recipe_id")
+      .select("*")
       .eq("collection_id", collectionId)
       .eq("recipe_id", recipeId)
-      .single();
+      .maybeSingle();
 
     if (data) {
       await supabase
@@ -128,7 +126,6 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
         .insert({ collection_id: collectionId, recipe_id: recipeId });
     }
 
-    // Refresh modal list
     openCollectionsModal();
   }
 
@@ -147,7 +144,6 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
 
   return (
     <div className="flex gap-2">
-      {/* Favorite button */}
       <button
         onClick={toggleFavorite}
         className={`px-3 py-1 rounded ${
@@ -157,7 +153,6 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
         {isFav ? "Unfavorite" : "Favorite"}
       </button>
 
-      {/* Collection button */}
       <button
         onClick={openCollectionsModal}
         className="px-3 py-1 rounded bg-blue-500 text-white"
@@ -165,7 +160,6 @@ export default function RecipeActions({ recipeId }: { recipeId: string }) {
         Add to Collection
       </button>
 
-      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           <div className="bg-white rounded-lg p-6 w-96">

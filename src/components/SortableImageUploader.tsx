@@ -1,7 +1,6 @@
 "use client";
 import { useRef, Dispatch, SetStateAction } from "react";
 import { X } from "lucide-react";
-import Image from "next/image";
 
 interface SortableImageUploaderProps {
   images: File[];
@@ -46,11 +45,9 @@ export default function SortableImageUploader({
       <div className="flex gap-2">
         {previews.map((src, i) => (
           <div key={i} className="relative h-48 w-36 flex-shrink-0">
-            <Image
+            <img
               src={src || placeholder}
               alt="recipe image"
-              width={40}
-              height={40}
               className="h-full w-full object-cover rounded-lg"
             />
             <button

@@ -70,7 +70,6 @@ export default function RecipePage() {
   const [previews, setPreviews] = useState<string[]>([]);
   const [dbImages, setDbImages] = useState<RecipeImage[]>([]);
 
-  // Comments state
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
 
@@ -108,21 +107,18 @@ export default function RecipePage() {
       setIngredients(data.ingredients);
       setInstructions(data.instructions);
 
-      // tags
       if (data.recipe_tags) {
         setTags(data.recipe_tags.map((rt: RecipeTag) => rt.tags.name));
       } else {
         setTags([]);
       }
 
-      // efforts
       if (data.recipe_efforts) {
         setEfforts(data.recipe_efforts.map((re: RecipeEffort) => re.efforts.name));
       } else {
         setEfforts([]);
       }
 
-      // fetch author username
       if (data.user_id) {
         const { data: profile } = await supabase
           .from("users")
@@ -183,12 +179,11 @@ export default function RecipePage() {
       return;
     }
 
-    // Get signed URLs for profile pictures
     const commentsWithSignedUrls: Comment[] = await Promise.all(
       (data || []).map(async (comment: Comment) => {
         if (comment.users?.profile_picture) {
           const { data: signedUrl } = await supabase.storage
-            .from("profile-pictures")
+            .from("profile_pics")
             .createSignedUrl(comment.users.profile_picture, 3600);
 
           return {
@@ -226,7 +221,7 @@ export default function RecipePage() {
       return;
     }
 
-    console.log("Comment submitted:", data); // Debug log
+    console.log("Comment submitted:", data);
     setNewComment("");
     loadComments();
   }
@@ -236,7 +231,7 @@ export default function RecipePage() {
       .from("comments")
       .delete()
       .eq("id", commentId)
-      .eq("user_id", userId); // Only allow users to delete their own comments
+      .eq("user_id", userId);
 
     if (error) {
       console.error("Error deleting comment:", error.message);
@@ -305,14 +300,28 @@ export default function RecipePage() {
     const confirmed = confirm("Are you sure you want to delete this recipe?");
     if (!confirmed) return;
 
-    if ((recipe.recipe_images?.length ?? 0) > 0) {
-      const paths = (recipe.recipe_images ?? []).map((img: RecipeImage) => img.image_url);
-      await supabase.storage.from("recipe-images").remove(paths);
-      await supabase.from("recipe_images").delete().eq("recipe_id", id);
-    }
+    try {
+      // Delete images from storage first
+      if ((recipe.recipe_images?.length ?? 0) > 0) {
+        const paths = (recipe.recipe_images ?? []).map((img: RecipeImage) => img.image_url);
+        await supabase.storage.from("recipe-images").remove(paths);
+      }
 
-    await supabase.from("recipes").delete().eq("id", id);
-    router.push("/recipes");
+      // Delete recipe (CASCADE will handle related tables)
+      const { error } = await supabase.from("recipes").delete().eq("id", id);
+
+      if (error) {
+        console.error("Error deleting recipe:", error);
+        alert("Failed to delete recipe: " + error.message);
+        return;
+      }
+
+      alert("Recipe deleted successfully!");
+      router.push("/");
+    } catch (error) {
+      console.error("Error during recipe deletion:", error);
+      alert("An error occurred while deleting the recipe");
+    }
   }
 
   if (!recipe) return <p>Loading...</p>;
@@ -380,7 +389,6 @@ export default function RecipePage() {
         </>
       ) : (
         <>
-          {/* Title + author */}
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-3xl font-bold">{recipe.title}</h1>
             {author && (
@@ -390,7 +398,6 @@ export default function RecipePage() {
             )}
           </div>
           <RecipeActions recipeId={id} />
-          {/* Tags + Efforts */}
           <div className="flex flex-wrap gap-2 mb-6">
             {tags.map((tag) => (
               <span
@@ -435,13 +442,11 @@ export default function RecipePage() {
               </div>
             </div>
 
-            {/* Comments Section */}
             <div>
               <h2 className="text-2xl font-semibold mb-3 text-gray-800">
                 Comments ({comments.length})
               </h2>
 
-              {/* Add Comment Form */}
               {userId && (
                 <div className="bg-gray-50 p-4 rounded-lg mb-4">
                   <textarea
@@ -462,7 +467,6 @@ export default function RecipePage() {
                 </div>
               )}
 
-              {/* Comments List */}
               <div className="space-y-4">
                 {comments.length === 0 ? (
                   <p className="text-gray-500 text-center py-8">
@@ -475,7 +479,6 @@ export default function RecipePage() {
                       className="bg-white border rounded-lg p-4"
                     >
                       <div className="flex items-start gap-3">
-                        {/* Profile Picture */}
                         <div className="flex-shrink-0">
                           {comment.users?.profile_picture_url ? (
                             <Image
@@ -496,7 +499,6 @@ export default function RecipePage() {
                           )}
                         </div>
 
-                        {/* Comment Content */}
                         <div className="flex-grow">
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
